@@ -30,17 +30,27 @@ export async function createAndFundTransaction(electrsClient: ElectrsClient, wal
         1
     );
 
-    let psbt = new Psbt({ network })
+    let psbt = new Psbt({ network });
+    
+    for (const input of inputs) {
+        const txHex = await electrsClient.getTransactionHex(input.txId);
+        const tx = Transaction.fromHex(txHex);
 
-    inputs.forEach(input =>
+        let witnessUtxo, nonWitnessUtxo;
+
+        if (tx.hasWitnesses) {
+            witnessUtxo = tx.toBuffer();
+        } else {
+            nonWitnessUtxo = tx.toBuffer();
+        }
+
         psbt.addInput({
             hash: input.txId,
             index: input.vout,
-            // TODO: determine these from electrs utxos
-            nonWitnessUtxo: input.nonWitnessUtxo,
-            witnessUtxo: input.witnessUtxo,
-        })
-    );
+            nonWitnessUtxo,
+            witnessUtxo,
+        });
+    }
 
     const changeAddress = await wallet.getAddress();
     outputs.forEach(output => {
