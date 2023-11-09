@@ -8,6 +8,7 @@
     "../sdk/src/**/*"
   ], // Adjust the path as needed
   "exclude": [
-    "../sdk/src/index.ts"
+    "../sdk/src/index.ts",
+    "../sdk/src/ordinal-indexer/index.ts"
   ]
 }
